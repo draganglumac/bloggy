@@ -1,6 +1,10 @@
 package uk.co.gluedit.bloggy.controllers
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn
+import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
@@ -20,8 +24,13 @@ class UserController(@Autowired val service: UserService) {
             service.findAll()
 
     @GetMapping("/{id}")
-    fun getUser(@PathVariable id: Int): User =
-            service.findOne(id) ?: throw UserNotFoundException("userId-${id}")
+    fun getUser(@PathVariable id: Int): EntityModel<User> {
+        val user = service.findOne(id) ?: throw UserNotFoundException("userId-${id}")
+        val resource = EntityModel.of(user)
+        val linkTo = linkTo(methodOn(this::class.java).getAllUsers())
+        resource.add(linkTo.withRel("all-users"))
+        return resource
+    }
 
     @PostMapping
     fun createUser(@RequestBody @Valid user: User): ResponseEntity<Void> {
@@ -36,11 +45,11 @@ class UserController(@Autowired val service: UserService) {
 
     @GetMapping("/{userId}/posts")
     fun getPostsForUser(@PathVariable userId: Int): List<Post> =
-            getUser(userId).posts
+            getUser(userId).content!!.posts
 
     @PostMapping("/{userId}/posts")
     fun addUserPost(@PathVariable userId: Int, @RequestBody post: Post): ResponseEntity<Void> {
-        val user = getUser(userId)
+        val user = getUser(userId).content!!
         val savedPost = user.addPost(post)
         val location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -52,7 +61,7 @@ class UserController(@Autowired val service: UserService) {
 
     @GetMapping("/{userId}/posts/{id}")
     fun getPost(@PathVariable userId: Int, @PathVariable id: Int): Post =
-            getUser(userId).findPost(id) ?: throw PostNotFoundException("userId-${userId}, postId-${id}")
+            getUser(userId).content!!.findPost(id) ?: throw PostNotFoundException("userId-${userId}, postId-${id}")
 
     @DeleteMapping("/{userId}")
     fun deletePost(@PathVariable userId: Int): User =
