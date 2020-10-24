@@ -21,4 +21,16 @@ class UserService {
     }
 
     fun findOne(id: Int): User? = users.find { user -> user.id == id }
+
+    fun deleteById(userId: Int): User? {
+        val iter = users.iterator()
+        while (iter.hasNext()) {
+            val user = iter.next()
+            if (user.id == userId) {
+                iter.remove()
+                return user
+            }
+        }
+        return null
+    }
 }

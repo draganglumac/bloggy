@@ -15,12 +15,12 @@ import uk.co.gluedit.bloggy.services.UserService
 class UserController(@Autowired val service: UserService) {
 
     @GetMapping
-    fun getAllUsers(): List<User> = service.findAll()
+    fun getAllUsers(): List<User> =
+            service.findAll()
 
     @GetMapping("/{id}")
-    fun getUser(@PathVariable id: Int): User {
-        return service.findOne(id) ?: throw UserNotFoundException("userId-${id}")
-    }
+    fun getUser(@PathVariable id: Int): User =
+            service.findOne(id) ?: throw UserNotFoundException("userId-${id}")
 
     @PostMapping
     fun createUser(@RequestBody user: User): ResponseEntity<Void> {
@@ -34,7 +34,8 @@ class UserController(@Autowired val service: UserService) {
     }
 
     @GetMapping("/{userId}/posts")
-    fun getPostsForUser(@PathVariable userId: Int): List<Post> = getUser(userId).posts
+    fun getPostsForUser(@PathVariable userId: Int): List<Post> =
+            getUser(userId).posts
 
     @PostMapping("/{userId}/posts")
     fun addUserPost(@PathVariable userId: Int, @RequestBody post: Post): ResponseEntity<Void> {
@@ -51,4 +52,8 @@ class UserController(@Autowired val service: UserService) {
     @GetMapping("/{userId}/posts/{id}")
     fun getPost(@PathVariable userId: Int, @PathVariable id: Int): Post =
             getUser(userId).findPost(id) ?: throw PostNotFoundException("userId-${userId}, postId-${id}")
+
+    @DeleteMapping("/{userId}")
+    fun deletePost(@PathVariable userId: Int): User =
+            service.deleteById(userId) ?: throw UserNotFoundException("userId-${userId}")
 }
