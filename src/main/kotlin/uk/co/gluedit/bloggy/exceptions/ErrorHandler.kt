@@ -20,8 +20,8 @@ class ErrorHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
-    @ExceptionHandler(UserNotFoundException::class)
-    fun handleMissingUser(ex: UserNotFoundException, request: WebRequest): ResponseEntity<Any> {
+    @ExceptionHandler(UserNotFoundException::class, PostNotFoundException::class)
+    fun handleMissingUser(ex: RuntimeException, request: WebRequest): ResponseEntity<Any> {
         val exceptionResponse = ExceptionResponse(
                 Date(), ex.message!!, request.getDescription(false))
         return ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND)
