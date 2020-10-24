@@ -9,6 +9,7 @@ import uk.co.gluedit.bloggy.exceptions.UserNotFoundException
 import uk.co.gluedit.bloggy.model.Post
 import uk.co.gluedit.bloggy.model.User
 import uk.co.gluedit.bloggy.services.UserService
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/users")
@@ -23,7 +24,7 @@ class UserController(@Autowired val service: UserService) {
             service.findOne(id) ?: throw UserNotFoundException("userId-${id}")
 
     @PostMapping
-    fun createUser(@RequestBody user: User): ResponseEntity<Void> {
+    fun createUser(@RequestBody @Valid user: User): ResponseEntity<Void> {
         val savedUser = service.save(user)
         val location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
